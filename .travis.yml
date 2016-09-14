@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: CDE90wLJX48dBmWZS+jxPsJTV4qMfFm61I6bu8rQk474bbR5MChJehFej1+FQ9qQrrKMsefYjnUXWAYeZWytU5KcycKJM6yrPjAFiJEE2Ai8xTE04AOFas3I29MXoHLUmrhMxNWjIPLwkHU5gKuQaqT7JKtX3hVHkHinCmZ5n7lc6aqV6ftmox6j++nxSkrQJ1gTovoVzLsg64MMWofBcQDJbos+qG6xekO2CJOm+7R5xGzDpnZbaJR4tr4RXsHEN5tjmhuc0Pv8s0+i8Uxuz08aFk/ht/qju5YZyEqUEmZwNl+9Ztu7PjQprPYx+2dEGUbvqWAsD0suRa6IRYlHSsZ4ExOkYfmQGcPszj9r1WUOf2RXi6bvpng9A0LKzkQcV+plrkHTM90YKDzD/VYFTpTTQKVwDxfhOtsjQ4JV7x1hE3GuEYFNyjwR7AO/cmP2GFGrtaICOXWZRDSqyek/+1wnLuR6T3vHecfAMlNvJtywNZNR9NgbEnCib+9L6r8yVZq1cAd3N9lTu6AsCXxX9WDt4/IPouyyHq4WwnyzAx99MH4QcjqXvYzk/Qb7cNPgL+gEzWnwzc5tGgq7G70GoLW/26z0fUSwd/ck00LrPMoQwTPCXCqanWBC4kmHMZJV3OVnY5gQeEPBdf+9glJCNyiZeFnP+rOX8tKhn1v1Vbc=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Some-Anomalies-of-the-Short-Story--from-Literature-and-Life-_3384
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
